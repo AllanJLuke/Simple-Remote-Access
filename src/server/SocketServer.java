@@ -10,10 +10,10 @@ public class SocketServer {
 
     private static ServerSocket socket;
     private static boolean running;
-
+    private final static boolean isLinux;
 
     static {
-
+        isLinux = !System.getProperty("os.name").toLowerCase().startsWith("windows");
         running = false;
         try {
             socket = new ServerSocket(0);
@@ -31,7 +31,7 @@ public class SocketServer {
         running = true;
         while (running) {
             try {
-               new Thread(new ServerHandler(socket.accept())).start();
+               new Thread(new ServerHandler(socket.accept(),isLinux)).start();
             } catch (IOException e) {
                 e.printStackTrace();
             }

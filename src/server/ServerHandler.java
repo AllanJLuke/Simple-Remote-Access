@@ -1,5 +1,7 @@
 package server;
 
+import utils.ShellEmu;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -12,9 +14,10 @@ import java.net.Socket;
 public class ServerHandler implements Runnable {
 
     private final Socket clientSocket;
-
-    public ServerHandler(final Socket socket) {
+    private final ShellEmu shellEmu;
+    public ServerHandler(final Socket socket,final boolean isLinux) {
         this.clientSocket = socket;
+        shellEmu = new ShellEmu(isLinux);
     }
 
     @Override
@@ -33,9 +36,19 @@ public class ServerHandler implements Runnable {
             // Initiate conversation with client
 
 //            out.println(outputLine);
-
+            String commandRoot;
             while ((inputLine = in.readLine()) != null) {
-              System.out.println(inputLine);
+                commandRoot = inputLine.split(" ")[0];
+              switch (commandRoot){
+                  case "put":
+                  case "get":
+                      out.println("upload/download");
+                      break;
+                  default:
+                      out.println(shellEmu.executeCommand(inputLine));
+
+
+              }
             }
 
         } catch (IOException e) {

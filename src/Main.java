@@ -1,4 +1,7 @@
 import server.SocketServer;
+import utils.ShellEmu;
+
+import java.util.Scanner;
 
 public class Main {
 
