@@ -18,6 +18,7 @@ public class ShellEmu {
     }
 
     /**
+     * modified from
      * src:http://www.mkyong.com/java/how-to-execute-shell-command-from-java/
      * @param command
      * @return
@@ -65,7 +66,10 @@ public class ShellEmu {
             }
             StringBuilder builder = new StringBuilder();
 
-            outputLines.forEach(builder::append);
+           for (String line : outputLines)
+           {
+               builder.append(line);
+           }
             return builder.toString();
         }
         else return "INVALID COMMAND";

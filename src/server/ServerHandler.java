@@ -41,8 +41,9 @@ public class ServerHandler implements Runnable {
                 commandRoot = inputLine.split(" ")[0];
               switch (commandRoot){
                   case "put":
+                 //     new Thread(re)
                   case "get":
-                      out.println("upload/download");
+                      out.println("download");
                       break;
                   default:
                       out.println(shellEmu.executeCommand(inputLine));
