@@ -66,10 +66,7 @@ public class ShellEmu {
             }
             StringBuilder builder = new StringBuilder();
 
-           for (String line : outputLines)
-           {
-               builder.append(line);
-           }
+            outputLines.forEach(builder::append);
             return builder.toString();
         }
         else return "INVALID COMMAND";

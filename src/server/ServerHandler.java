@@ -41,9 +41,9 @@ public class ServerHandler implements Runnable {
                 commandRoot = inputLine.split(" ")[0];
               switch (commandRoot){
                   case "put":
-                 //     new Thread(re)
+                       handleUpload();
                   case "get":
-                      out.println("download");
+                     //sendFile();
                       break;
                   default:
                       out.println(shellEmu.executeCommand(inputLine));
@@ -54,6 +54,15 @@ public class ServerHandler implements Runnable {
 
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void handleUpload() {
+        boolean recieving = true;
+        while(recieving)
+        {
+//            BufferedReader in = new BufferedReader(
+//                    new InputStreamReader(clientSocket.getInputStream()));
         }
     }
 }
