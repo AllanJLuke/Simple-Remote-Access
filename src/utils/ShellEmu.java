@@ -23,9 +23,9 @@ public class ShellEmu {
      * @param command
      * @return
      */
-    public String executeCommand(String command) {
+    public String executeCommand(final String command) {
         
-        command = filterCommand(command);
+        String filteredCommand = filterCommand(command);
 
         if (command != null) {
             ArrayList<String> outputLines = new ArrayList<String>();
@@ -35,16 +35,15 @@ public class ShellEmu {
             Process p;
             try {
                 if (isLinux)
-                    p = Runtime.getRuntime().exec(new String[]{"/bin/sh",setWorkingDir() + command + addWorkingDir()});
+                    p = Runtime.getRuntime().exec(new String[]{"/bin/sh",filteredCommand});
                 else
-                    p = Runtime.getRuntime().exec(new String[]{"cmd.exe","/c",setWorkingDir() + command + addWorkingDir()});
+                    p = Runtime.getRuntime().exec(new String[]{"cmd.exe","/c", filteredCommand});
                 p.waitFor();
                 BufferedReader reader =
                         new BufferedReader(new InputStreamReader(p.getInputStream()));
                 BufferedReader errorReader =
                         new BufferedReader(new InputStreamReader(p.getErrorStream()));
                 String line = "";
-                reader.lines();
                 while ((line = reader.readLine()) != null) {
                     outputLines.add(line + "\n");
                 }
@@ -53,34 +52,42 @@ public class ShellEmu {
                     errorLines.add(line + "\n");
                 }
 
-//               workingDirectory = outputLines.get(outputLines.size()-1);
+
+                StringBuilder builder = new StringBuilder();
+                if (errorLines.size() == 0)
+                {
+                    if (command.startsWith("cd"))
+                    {
+                        workingDirectory = command.split(" ")[1];
+                    }
 
 
-//                if (output.length() > 0)
-//                {
-//                    if (command.)
-//                }
+                    outputLines.forEach(builder::append);
+                    return builder.toString();
+                }
+                else
+                {
+
+                    errorLines.forEach(builder::append);
+                    return builder.toString();
+                }
+
+
+
 
             } catch (Exception e) {
                 e.printStackTrace();
+                return  null;
             }
-            StringBuilder builder = new StringBuilder();
 
-            outputLines.forEach(builder::append);
-            return builder.toString();
         }
         else return "INVALID COMMAND";
-
     }
 
     private String setWorkingDir() {
         if (workingDirectory != null)
-             return ("cd "+ workingDirectory) + (isLinux ? ";":"&&");
+             return ("cd "+ workingDirectory) + (isLinux ? ";":" && ");
         return "";
-    }
-
-    private String addWorkingDir() {
-        return isLinux ? ";pwd;" : "&&echo %cd%";
     }
 
 
@@ -88,11 +95,12 @@ public class ShellEmu {
     private String filterCommand(String command) {
         if (isValidCommand(command))
         {
+
             if (command.startsWith("ls"))
             {
-             return command.replace("ls","dir");
+             command = command.replace("ls","dir");
             }
-            return command;
+            return setWorkingDir() + command;
         }
         return null;
     }
