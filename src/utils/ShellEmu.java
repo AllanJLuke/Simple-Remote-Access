@@ -1,23 +1,34 @@
 package utils;
 
+import server.SocketServer;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 /**
  * Created by allan on 2015-09-28.
+ *
+ * WORKING NEEDS TO BE INITIALIZED AT THE START.
+ * WORKING DIRECTORY IS NOT UPDATE PROPERLY WITH cd ..
  */
 public class ShellEmu {
-    private String workingDirectory = null;
+    private String workingDirectory = "";
 
     private final boolean isLinux;
 
     public ShellEmu(boolean isLinux)
     {
         this.isLinux = isLinux;
+        workingDirectory = executeCommand(isLinux ? "pwd" : "echo %cd%");
+        System.out.println(workingDirectory);
     }
 
+
+
+
     /**
+
      * modified from
      * src:http://www.mkyong.com/java/how-to-execute-shell-command-from-java/
      * @param command
@@ -27,7 +38,7 @@ public class ShellEmu {
         
         String filteredCommand = filterCommand(command);
 
-        if (command != null) {
+        if (filteredCommand != null) {
             ArrayList<String> outputLines = new ArrayList<String>();
             ArrayList<String> errorLines = new ArrayList<String>();
 
@@ -81,13 +92,17 @@ public class ShellEmu {
             }
 
         }
-        else return "INVALID COMMAND";
+        else return SocketServer.showHelp();
     }
 
     private String setWorkingDir() {
-        if (workingDirectory != null)
+        if (workingDirectory.length() > 0)
              return ("cd "+ workingDirectory) + (isLinux ? ";":" && ");
-        return "";
+        return workingDirectory;
+    }
+
+    public String getWorkingDirectory() {
+        return workingDirectory;
     }
 
 
@@ -110,8 +125,6 @@ public class ShellEmu {
 
        switch(commandSplit[0].trim()){
            case "ls":
-           case "get":
-           case "put":
            case "cd":
            case "mkdir":
                return true;
