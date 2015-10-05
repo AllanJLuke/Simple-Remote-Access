@@ -99,6 +99,10 @@ public abstract class CustomProtocolClient {
                                 if (type == TYPE_STRING) {
                                     handleServerOutput(new String(messageBuffer, Charset.defaultCharset()));
                                 }
+                                else if (type == TYPE_BINARY)
+                                {
+                                    handleDownload(messageBuffer);
+                                }
                             }
 
                     }
@@ -112,7 +116,7 @@ public abstract class CustomProtocolClient {
 
     public abstract void handleServerOutput(String command);
 
-
+    public abstract void handleDownload(byte [] bytes);
 }
 
 

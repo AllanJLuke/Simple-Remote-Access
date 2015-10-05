@@ -15,7 +15,7 @@ import java.util.Scanner;
 public class SocketClient extends CustomProtocolClient {
 
 
-
+    private File outputFile;
     public SocketClient(final Socket clientSocket) throws IOException {
 
         super(new DataInputStream(clientSocket.getInputStream()), new DataOutputStream(clientSocket.getOutputStream()));
@@ -45,95 +45,37 @@ public class SocketClient extends CustomProtocolClient {
 
 
                     } else {
-                        System.out.println("FILE DOES NOT EXIST");
+                        System.out.println("FILE DOES NOT EXIST, USE AN ABSOLUTE PATH");
                     }
                 }
 
-            } else {
+            }
+            else if (userInput.startsWith("get"))
+            {
+                String [] commandChunks = userInput.split(" ");
+                if (commandChunks.length < 2)
+                {
+                    System.out.println("MISSING PATH");
+                    System.out.println(showHelp());
+                }
+                else {
+                    send(userInput);
+                    File temp = new File(commandChunks[1]);
+                    outputFile = new File(System.getProperty("user.home") + File.separator + temp.getName());
+                    try {
+                        outputFile.createNewFile();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            else {
 
                 send(userInput);
             }
 
         }
 
-    }
-
-    public static void main(String[] args) throws IOException {
-        Socket socket = new Socket("192.168.56.1", 49857);
-        SocketClient client = new SocketClient(socket);
-//        String ip = "192.168.56.1";
-//        int port = 55626;
-//        clientSocket= new Socket(ip, port);
-//        String userInput;
-//        DataOutputStream outputStream = new DataOutputStream(clientSocket.getOutputStream());
-//        DataInputStream inputStream = new DataInputStream(clientSocket.getInputStream());
-//
-////        new Thread(new Runnable() {
-////            @Override
-////            public void run() {
-////                try {
-////                    while ((serverOut[0] = br.readLine()) != null) {
-////                        System.out.println(serverOut[0]);
-////                    }
-////                } catch (IOException e) {
-////                    e.printStackTrace();
-////                }
-////            }
-////        }).start();
-//
-//        while (scan.hasNext())
-//
-//        {
-//            userInput = scan.nextLine();
-//
-//            if (userInput.startsWith("put"))
-//            {
-//
-//                String[] split = userInput.split(" ");
-//
-//                if (split.length < 2)
-//                {
-//                    System.out.println("MISSING PATH");
-//                    System.out.println(showHelp());
-//                }
-//                else
-//                {
-//                    File file = new File (split[1]);
-//                    if (file.exists())
-//                    {
-//                      //  pw.println(userInput);
-//                        OutputStream os = clientSocket.getOutputStream();
-//                        DataOutputStream out = new DataOutputStream(os);
-//                   //     BufferedReader reader = new BufferedReader(new FileReader(file));
-//                     //   String output;
-//                        byte[] bytes = Files.readAllBytes(file.toPath());
-//
-//
-//                   //     outputStream.println(userInput);
-//                        //.flush();
-//                        os.flush();
-//                    //    os.write(bytes);
-//                        System.out.println(bytes.length);
-//                        out.write(bytes.length);
-//                        out.write(bytes);
-//
-//
-//                      //  System.out.println("SENDING  "+ bytes.length+ ". HASH: " + Arrays.hashCode(bytes));
-//                      //  os.write(bytes);
-//                      //  pw.println(END_OF_UPLOAD);
-//                    }
-//                    else {
-//                        System.out.println("FILE DOES NOT EXIST");
-//                    }
-//                }
-//
-//            }else{
-//                byte [] bytes = userInput.getBytes();
-//
-//          //      pw.println(userInput);
-//            }
-//
-//        }
     }
 
     public static String showHelp() {
@@ -149,5 +91,14 @@ public class SocketClient extends CustomProtocolClient {
     @Override
     public void handleServerOutput(String command) {
         System.out.println(command);
+    }
+
+    @Override
+    public void handleDownload(byte[] bytes) {
+        try {
+            Files.write(outputFile.toPath(),bytes);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

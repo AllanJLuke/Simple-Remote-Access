@@ -2,6 +2,7 @@ package server;
 
 import java.io.*;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
 
 /**
  * Created by allan on 2015-10-01.
@@ -45,6 +46,14 @@ public abstract class CustomProtocolServer {
     }
 
 
+    protected void send (File file) throws IOException {
+        //   String output;
+        byte[] bytes;
+        bytes = Files.readAllBytes(file.toPath());
+        send(bytes,TYPE_BINARY);
+
+
+    }
 
 
 
@@ -68,8 +77,7 @@ public abstract class CustomProtocolServer {
                                 else waitingForACK = false;
                             }
                             else {
-//                                int bufferSize = inputStream.readInt();
-//                                System.out.println(bufferSize);
+
                                 messageBuffer = new byte[read];
                                 int type = inputStream.readInt();
 
