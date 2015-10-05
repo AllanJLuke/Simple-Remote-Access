@@ -3,37 +3,29 @@ package utils;
 import server.SocketServer;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 /**
  * Created by allan on 2015-09-28.
  *
- * WORKING NEEDS TO BE INITIALIZED AT THE START.
- * WORKING DIRECTORY IS NOT UPDATE PROPERLY WITH cd ..
  */
 public class ShellEmu {
-    private String workingDirectory = "";
+    private String workingDirectory = null;
 
     private final boolean isLinux;
 
     public ShellEmu(boolean isLinux)
     {
         this.isLinux = isLinux;
-        workingDirectory = executeCommand(isLinux ? "pwd" : "echo %cd%");
-        System.out.println(workingDirectory);
+        workingDirectory = executeCommand(isLinux ? "pwd" : "echo %cd%").replaceAll("\\r?\\n", "");
     }
 
 
 
 
-    /**
 
-     * modified from
-     * src:http://www.mkyong.com/java/how-to-execute-shell-command-from-java/
-     * @param command
-     * @return
-     */
     public String executeCommand(final String command) {
         
         String filteredCommand = filterCommand(command);
@@ -67,12 +59,27 @@ public class ShellEmu {
                 StringBuilder builder = new StringBuilder();
                 if (errorLines.size() == 0)
                 {
-                    if (command.startsWith("cd"))
+                    String[] split = command.split(" ");
+                    if (split[0].equals("cd"))
                     {
-                        workingDirectory = command.split(" ")[1];
+                        if (!split[1].equals("..")) {
+                            File temp = new File(split[1]);
+
+                            if (temp.isAbsolute())
+                                workingDirectory = split[1].replaceAll("\\r?\\n", "");
+                            else{
+                                workingDirectory+=File.separator+split[1];
+                            }
+                        }
+                        else
+                        {
+
+                           workingDirectory =  workingDirectory.substring(0,workingDirectory.lastIndexOf(File.separator));
+                        }
                     }
 
-
+                    if (outputLines.size() == 0)
+                        return "Current Directory: " + workingDirectory;
                     outputLines.forEach(builder::append);
                     return builder.toString();
                 }
@@ -116,6 +123,10 @@ public class ShellEmu {
              command = command.replace("ls","dir");
             }
             return setWorkingDir() + command;
+        }
+        else if (workingDirectory == null)
+        {
+            return command;
         }
         return null;
     }

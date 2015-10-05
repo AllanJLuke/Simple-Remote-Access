@@ -1,5 +1,6 @@
 package server;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 
@@ -11,9 +12,7 @@ public class SocketServer {
     private static ServerSocket socket;
     private static boolean running;
     private final static boolean isLinux;
-    public final static String BASE_STORAGE = System.getProperty("user.home");
-    public final static String END_OF_UPLOAD = "EOF";
-
+ 
     static {
         isLinux = !System.getProperty("os.name").toLowerCase().startsWith("windows");
         running = false;
@@ -33,7 +32,7 @@ public class SocketServer {
         running = true;
         while (running) {
             try {
-               new Thread(new ServerHandler(socket.accept(),isLinux)).start();
+               new Thread(new ClientHandler(socket.accept(),isLinux)).start();
             } catch (IOException e) {
                 e.printStackTrace();
             }
